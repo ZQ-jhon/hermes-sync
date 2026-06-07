@@ -90,3 +90,51 @@ skills/amap-lbs-skill/config.json
 ## 验证
 
 `scripts/verify-staging.sh` 是门槛：它必须在你提交或推送前输出零危险文件和零真实密钥字符串。
+
+## 已部署实例（本用户）
+
+- **远程私有仓库**：`https://github.com/ZQ-jhon/hermes-sync`（GitHub 账号 `ZQ-jhon`，已用 `gh` 登录，含 `repo` 权限）。
+- **主机**：Windows，Hermes 主目录 `~/AppData/Local/hermes`，默认分支 `master`。
+- **提交身份约定**：用户要求 commit author 署名 `Claude <claude@anthropic.com>`。提交时用
+  `git -c user.name="Claude" -c user.email="claude@anthropic.com" commit --author="Claude <claude@anthropic.com>" -m "..."`。
+- 首个 init 提交曾用临时身份 `hermes-sync`；之后的提交统一用 Claude。
+
+## Mac 端首次接入（关键：不要 clone 覆盖）
+
+Mac 上的 `~/.hermes/` 已经有自己的 `.env`/`config.yaml` 等本地机密。**绝不能** `git clone` 覆盖整个目录。正确做法是在已存在的目录里挂上 remote 再检出：
+
+```bash
+cd ~/.hermes
+git init
+git remote add origin https://github.com/ZQ-jhon/hermes-sync.git
+git fetch origin
+git checkout -f master      # 拉下 skills/memories/SOUL.md；本地 .env/config.yaml 因 .gitignore 不受影响、不会被覆盖
+```
+
+注意：Mac 端 `.gitignore` 由仓库内的版本提供（它本身被同步），所以检出后机密保护规则自动生效。Mac 直连 GitHub 通常无需代理（代理是 Windows 端特有问题）。
+
+## 日常同步流程（建立后）
+
+- **推送本机改动**（任意一端）：
+  ```bash
+  cd <hermes-home>
+  git add -A
+  git -c user.name="Claude" -c user.email="claude@anthropic.com" commit --author="Claude <claude@anthropic.com>" -m "sync: <描述>"
+  git push        # Windows 端需临时代理，见下
+  ```
+- **拉取另一端改动**：`git pull --rebase`（rebase 避免无谓的 merge commit；skills/memories 很少真冲突）。
+- **冲突点**：`memories/MEMORY.md`、`USER.md` 两端都会被各自的 Hermes 进程改写，最易冲突。冲突时通常**合并保留两边新增的事实**即可，不要简单丢弃一边。
+
+## Windows 端 push/pull 的代理写法（已验证）
+
+直连会 `schannel: SSL/TLS connection failed`。两种方式（都不污染全局配置）：
+
+```bash
+# 方式1：环境变量 + 每命令临时（推荐，gh repo create 也走得通）
+export HTTPS_PROXY=http://127.0.0.1:7890 HTTP_PROXY=http://127.0.0.1:7890
+git push
+# 方式2：仅本次命令
+git -c http.proxy=http://127.0.0.1:7890 -c https.proxy=http://127.0.0.1:7890 push
+```
+
+若曾用 `git config --local http.proxy ...` 临时设过，**用完务必 `git config --local --unset http.proxy`（及 https.proxy）清除**，避免把代理固化进 `.git/config` 污染该仓库。Clash API/端口细节见 `clash-proxy` skill。
