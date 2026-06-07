@@ -86,6 +86,9 @@ skills/amap-lbs-skill/config.json
   `-c http.proxy=http://127.0.0.1:7890 -c https.proxy=http://127.0.0.1:7890`
   （不要修改全局 git 配置——用户对此很坚定）。参见 `clash-proxy` skill。
 - **不要替用户盲目推送。** GitHub 仓库的创建/选择应由用户自己决定。要询问用户：是否已有私有仓库 URL，还是希望 `gh repo create --private` + push，或先仅做本地同步。
+- **提交后必须验证它真的落地了。** 不要假设一条 `commit` 命令已执行成功——本会话出现过提交命令未真正运行、工作区改动仍挂着的情况。每次 commit 后用 `git log --oneline -1`（确认 hash/subject/author）+ `git status -s`（确认工作区干净）核对，再向用户报告“已提交”。
+- **VS Code 源代码管理面板只显示“有改动/未跟踪”的文件，已提交的文件不会出现在改动列表里。** 用户在面板里看到“怎么只有一个技能”往往是误会：其余几百个已在上一次提交里，所以不显示。要用 `git ls-files skills/ | wc -l` 证明实际已跟踪的数量来安抚，而不是让用户以为技能丢了。
+- **`gh repo create --private --source=. --remote=origin --push` 可一步完成建库+设 remote+推送。** Windows 端给它套上 `export HTTPS_PROXY=http://127.0.0.1:7890 HTTP_PROXY=http://127.0.0.1:7890` 即可走代理；推送后用 `gh api repos/<owner>/<repo>/git/trees/<branch>?recursive=1` 查远端实际 blob 数和路径，确认敏感文件未上传，而不是只看 push 没报错。
 
 ## 验证
 
