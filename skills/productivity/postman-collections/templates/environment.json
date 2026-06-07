@@ -1,0 +1,11 @@
+{
+  "name": "dev",
+  "values": [
+    { "key": "base_url", "value": "https://api.dev.example.com", "type": "default", "enabled": true },
+    { "key": "username", "value": "dev_user", "type": "default", "enabled": true },
+    { "key": "password", "value": "CHANGE_ME", "type": "secret", "enabled": true },
+    { "key": "api_key", "value": "CHANGE_ME", "type": "secret", "enabled": true },
+    { "key": "auth_token", "value": "", "type": "secret", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment"
+}
