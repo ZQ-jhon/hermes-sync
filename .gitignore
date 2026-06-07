@@ -1,0 +1,57 @@
+# ============================================================
+# Hermes sync repo — WHITELIST strategy (方案A)
+# 默认忽略一切，只显式放行需要同步的安全内容。
+# 这样即使误执行 `git add .`，密钥也不会被纳入。
+# ============================================================
+
+# --- 1) 默认忽略所有东西 ---
+/*
+/.*
+
+# --- 2) 放行需要同步的目录/文件（! 取消忽略） ---
+# 注意：父目录被忽略时，必须先放行目录本身，再放行其内容。
+
+# 技能库
+!/skills/
+!/skills/**
+
+# 记忆 / 长期记忆
+!/memories/
+!/memories/**
+
+# 人格设定
+!/SOUL.md
+
+# 本文件自身要进仓库
+!/.gitignore
+
+# README（如果之后加）
+!/README.md
+
+# --- 3) 在已放行的目录内，再排除敏感 / 无用内容 ---
+
+# 锁文件（运行时状态，不该同步）
+memories/*.lock
+skills/**/*.lock
+
+# 依赖目录（应在另一台机器重装，不同步）
+skills/**/node_modules/
+
+# 带 API key 的技能配置（高德 webServiceKey 等）—— 绝不上传
+skills/amap-lbs-skill/config.json
+
+# 技能运行时缓存 / 临时文件
+skills/**/_tmp_*
+skills/**/_route*.js
+skills/**/_route*.json
+skills/**/.usage.json
+skills/**/__pycache__/
+skills/**/*.pyc
+
+# 通用敏感文件名兜底（任何位置）
+**/.env
+**/*.key
+**/*.pem
+**/credentials.json
+**/auth.json
+**/secrets*.json

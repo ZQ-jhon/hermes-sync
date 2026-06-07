@@ -1,0 +1,9 @@
+User has Postman desktop installed (Windows). Keeps Postman collection/environment JSON exports under C:\Users\Administrator\Postman\Collections\. Postman stores real config in IndexedDB leveldb (binary, not directly editable) — the right approach for creating collections is generating importable v2.1 JSON files.
+§
+On this Windows host, the execute_code Python sandbox does NOT resolve MSYS-style `/tmp` the same as the terminal (bash) tool. A file written via terminal to `/tmp/x` actually lives at `C:\Users\Administrator\AppData\Local\Temp\x`, and Python open('/tmp/x') raises FileNotFoundError. Fix: pass native Windows paths to execute_code (use `cygpath -w /tmp/x` in terminal to get the real path), or write+read the file within the same tool. Don't share `/tmp` paths across terminal and execute_code.
+§
+Node fetch(undici)不读HTTP_PROXY→直连出网可能被OpenRouter区域封锁(403)。a2ui-angular方案: server.ts启动时setGlobalDispatcher(ProxyAgent({uri:proxyUrl}))，angular.json标记undici为external避免bundle内联导致的私有Symbol冲突。CFW(D:\clash\Clash\)代理:7890, API随机端口(查config.yaml), 认证?token=X, 切节点PUT /proxies/GLOBAL。
+§
+用户的 Windows git 环境：直接 `git push`/`pull`/`fetch`/`clone` 访问 GitHub 会报 `schannel: SSL/TLS connection failed`，需走 Clash 代理 http://127.0.0.1:7890。但用户明确要求【不要改全局 git 配置】（不要 `git config --global http.proxy ...`）。正确做法：每次网络型 git 操作临时带 `-c http.proxy=http://127.0.0.1:7890 -c https.proxy=http://127.0.0.1:7890`，只对当次命令生效，不污染全局。
+§
+有 Mock 模式 src/flows.mock.ts，靠 MOCK_LLM 惰性切换。关键坑：/chatFlow 由 server.ts 的 Express+expressHandler 挂载，`ng serve` dev server 不可靠挂载它（实测 404/502，编译正常），所以任何依赖 /chatFlow 的预览/Mock 必须跑构建产物 SSR：`ng build && node dist/app/server/server.mjs`（PORT 指定端口默认4000）。`npm run mock` 已改为此方式（mock:dev 才是 ng serve，仅前端调试）。验证 mock 必须打 /chatFlow 不能只看首页200。用户偏好用 Claude Code CLI（claude -p print 模式）作为 committer 提交/发 PR。
