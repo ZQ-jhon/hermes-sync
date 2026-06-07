@@ -1,0 +1,43 @@
+# ============================================================
+# Hermes sync repo — WHITELIST strategy (default-deny)
+# Ignore everything, then re-include only safe, durable content.
+# Even an accidental `git add .` cannot stage secrets this way.
+# ============================================================
+
+# --- 1) ignore everything ---
+/*
+/.*
+
+# --- 2) re-include what we sync (parent dir must be un-ignored first) ---
+!/skills/
+!/skills/**
+!/memories/
+!/memories/**
+!/SOUL.md
+!/.gitignore
+!/README.md
+
+# --- 3) re-exclude sensitive / useless content inside whitelisted dirs ---
+# runtime lock files
+memories/*.lock
+skills/**/*.lock
+# deps (reinstall on the other machine, don't sync)
+skills/**/node_modules/
+# skill runtime temp / cache
+skills/**/_tmp_*
+skills/**/_route*.js
+skills/**/_route*.json
+skills/**/.usage.json
+skills/**/__pycache__/
+skills/**/*.pyc
+# skill config files that hold real API keys — ADD EACH ONE YOU FIND
+# (discover via grep; keep *.example.json templates)
+skills/amap-lbs-skill/config.json
+
+# --- 4) belt-and-suspenders: secret-shaped names anywhere ---
+**/.env
+**/*.key
+**/*.pem
+**/credentials.json
+**/auth.json
+**/secrets*.json
